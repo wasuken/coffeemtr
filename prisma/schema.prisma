@@ -1,0 +1,35 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+// コーヒーのみ
+model DrinkCoffeeHistory {
+  id Int @id @default(autoincrement()) @map("drink_coffee_history_id")
+  caffeine_contents_mg Int
+  createdAt DateTime  @default(now()) @map(name: "created_at")
+  @@map("drink_coffee_history")
+}
+
+// コーヒー以外もサポートする場合
+// model Drink {
+//   id Int @id @default(autoincrement()) @map("drink_id")
+//   name String
+//   caffeine_contents_mg Int
+//   historyList DrinkHistory[] @relation("Drink_DrinkHistory")
+//   @@map("drink")
+// }
+// model DrinkHistory {
+//   id Int @id @default(autoincrement()) @map("drink_history_id")
+//   drink_id Int
+//   Drink_DrinkHistory Drink @relation("Drink_DrinkHistory", fields: [drink_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+//   createdAt DateTime  @default(now()) @map(name: "created_at")
+//   updatedAt DateTime  @updatedAt @map(name: "updated_at")
+//   @@map("drink_history")
+// }
