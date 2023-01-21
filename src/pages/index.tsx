@@ -2,9 +2,19 @@ import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "@next/font/google";
 import useSWR, { useSWRConfig } from "swr";
+import CoffeeList from "@/components/coffee/CoffeeList";
+import CaffeineMeter from "@/components/coffee/CaffeineMeter";
+import { COFFEE_CAFFEINE, ONE_DAY_MAX_CAFFEINE_MG } from "@/const";
+import { Button } from "react-bootstrap";
+import styled from "styled-components";
+
+const ButtonArea = styled.div`
+  display: flex;
+  width: 50vw;
+  gap: 5px;
+`
 
 const inter = Inter({ subsets: ["latin"] });
-
 const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
 function dfFromDt(dt) {
@@ -12,10 +22,22 @@ function dfFromDt(dt) {
 }
 
 export default function Home() {
-  const { data, error } = useSWR("/api/drink", fetcher);
-  let dmap = {};
   const { mutate } = useSWRConfig();
-  function click() {
+  const dt = new Date();
+  let params = "";
+  if (dt !== undefined) {
+    const df = dfFromDt(dt);
+    params = `?date=${df}`;
+  }
+  const { data, error } = useSWR(`/api/drink${params}`, fetcher);
+  let nowmgper = 0;
+  let nowmgLabel = "";
+  if (data) {
+    const nowmg = data.length * COFFEE_CAFFEINE;
+    nowmgper = (nowmg / ONE_DAY_MAX_CAFFEINE_MG) * 100;
+    nowmgLabel = `${nowmg} / ${ONE_DAY_MAX_CAFFEINE_MG} (mg)`;
+  }
+  function drinkClick() {
     fetch("/api/drink", {
       method: "POST",
       headers: {
@@ -23,33 +45,37 @@ export default function Home() {
       },
       body: JSON.stringify({}),
     }).then((res) => {
-      mutate("/api/drink");
+      const dt = new Date();
+      const df = dfFromDt(dt);
+      mutate(`/api/drink?date=${df}`);
     });
   }
-  if (error) return <div>failed</div>;
-  if (!data) return <div>loading...</div>;
-  data.forEach((v) => {
-    const dt = new Date(v.createdAt);
-    const key = dfFromDt(dt);
-    if (!dmap[key]) dmap[key] = [];
-    dmap[key].push(v);
-  });
+  function cancelClick() {
+    const dt = new Date();
+    const df = dfFromDt(dt);
+    fetch(`/api/drink?date=${df}`, {
+      method: "DELETE",
+    }).then((res) => {
+      console.log(res);
+      const dt = new Date();
+      const df = dfFromDt(dt);
+      mutate(`/api/drink?date=${df}`);
+    });
+  }
   return (
     <>
       <h2>History</h2>
+      <ButtonArea>
+        <Button variant="primary" onClick={drinkClick}>
+          drink coffee
+        </Button>
+        <Button variant="primary" onClick={cancelClick}>
+          cancel drink latest
+        </Button>
+      </ButtonArea>
       <div>
-        <button onClick={click}>drink coffee</button>
-      </div>
-      <div>
-        <div>
-          <h4>今日</h4>
-        </div>
-        <div>
-          {dmap[dfFromDt(new Date())] &&
-            dmap[dfFromDt(new Date())].map((hist, i) => (
-              <img src="/coffee.png" alt="" />
-            ))}
-        </div>
+        <div>{data && <CaffeineMeter mg={nowmgper} label={nowmgLabel} />}</div>
+        <CoffeeList title="今日" dt={dt} data={data} error={error} />
       </div>
     </>
   );
