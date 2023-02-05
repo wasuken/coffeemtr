@@ -1,44 +1,21 @@
+import { useState } from "react";
 import { Container } from "react-bootstrap";
+import Form from "react-bootstrap/Form";
 import useSWR from "swr";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import { Line } from "react-chartjs-2";
-import { IDrinkItem, ILineBarData } from "@/const"
-import SimpleChartPage from "@/components/SimpleChartPage"
+import { IDrinkItem, ILineBarData, IDrinkTotalItem } from "@/const";
+import SimpleChartPage from "@/components/SimpleChartPage";
+import styled from "styled-components";
+
+const FormArea = styled.div`
+  width: 80vw;
+`;
+
+const ChartArea = styled.div`
+  width: 80vw;
+  height: 50vh;
+`;
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json());
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
-
-
-const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: "top" as const,
-    },
-    title: {
-      display: true,
-      text: "カフェチャート",
-    },
-  },
-};
 
 function genkey(ds: string): string {
   const dt = new Date(ds);
@@ -46,27 +23,33 @@ function genkey(ds: string): string {
 }
 
 export default function Index() {
+  const [chartType, setChartType] = useState<number>(0);
   const { data } = useSWR<IDrinkItem[]>(`/api/drinks`, fetcher);
   let lineData: ILineBarData = { labels: [], datasets: [] };
   if (data) {
-    let map = new Map<string, IDrinkItem>();
+    let map = new Map<string, IDrinkTotalItem>();
     data.forEach((drink) => {
       const key: string = genkey(drink.createdAt);
       let newDrink = drink;
-      let oldDrink: IDrinkItem | undefined = map.get(key);
+      let oldDrink: IDrinkTotalItem | undefined = map.get(key);
       if (oldDrink === undefined) {
-        map.set(key, drink);
-      }else{
+        map.set(key, { num: 1, ...drink });
+      } else {
         newDrink.caffeine_contents_mg += oldDrink.caffeine_contents_mg;
-        map.set(key, newDrink);
+        map.set(key, { num: oldDrink.num + 1, ...drink });
       }
     });
     const keys = Array.from(map.keys());
     lineData.labels = keys;
+    const chartData = keys.map((k) => {
+      return chartType === 0
+        ? map.get(k)?.caffeine_contents_mg
+        : map.get(k)?.num;
+    });
     lineData.datasets = [
       {
         label: "bar 1",
-        data: keys.map((k) => map.get(k)?.caffeine_contents_mg),
+        data: chartData,
         borderColor: "rgb(255, 99, 132)",
         backgroundColor: "rgba(255, 99, 132, 0.5)",
       },
@@ -75,7 +58,21 @@ export default function Index() {
   return (
     <Container>
       <h3>Chart</h3>
-      <SimpleChartPage title="カフェインチャート" data={lineData} />
+      <FormArea>
+        <Form.Group className="mb-3 w-50">
+          <Form.Label>チャートの値</Form.Label>
+          <Form.Select
+            onChange={(e) => setChartType(parseInt(e.target.value))}
+            value={chartType}
+          >
+            <option value={0}>カフェイン量(mg)</option>
+            <option value={1}>コーヒーのんだ回数</option>
+          </Form.Select>
+        </Form.Group>
+      </FormArea>
+      <ChartArea>
+        <SimpleChartPage title="カフェインチャート" data={lineData} />
+      </ChartArea>
     </Container>
   );
 }

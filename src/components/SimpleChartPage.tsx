@@ -40,8 +40,6 @@ function generateOpt(title: string){
 
 export default function SimpleChartPage(props: ISimpleChartPageProps){
   return (
-    <div>
-      <Line options={generateOpt(props.title)} data={props.data} />
-    </div>
+    <Line options={generateOpt(props.title)} data={props.data} />
   )
 }

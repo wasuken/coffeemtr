@@ -9,6 +9,10 @@ export interface IDrinkItem {
   caffeine_contents_mg: number;
 }
 
+export interface IDrinkTotalItem extends IDrinkItem {
+  num: number;
+}
+
 export interface ILineBarDataDataset {
   label: string;
   data: (number|undefined)[];
