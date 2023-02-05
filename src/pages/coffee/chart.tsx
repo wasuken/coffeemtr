@@ -1,6 +1,5 @@
-import styled from "styled-components";
 import { Container } from "react-bootstrap";
-import useSWR, { useSWRConfig } from "swr";
+import useSWR from "swr";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,6 +11,8 @@ import {
   Legend,
 } from 'chart.js';
 import { Line } from "react-chartjs-2";
+import { IDrinkItem, ILineBarData } from "@/const"
+import SimpleChartPage from "@/components/SimpleChartPage"
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
@@ -44,25 +45,7 @@ function genkey(ds: string): string {
   return [dt.getFullYear(), dt.getMonth() + 1, dt.getDate()].join("-");
 }
 
-interface IDrinkItem {
-  id: number;
-  createdAt: string;
-  caffeine_contents_mg: number;
-}
-
-interface ILineBarDataDataset {
-  label: string;
-  data: (number|undefined)[];
-  borderColor: string;
-  backgroundColor: string;
-}
-
-interface ILineBarData {
-  labels: string[];
-  datasets: ILineBarDataDataset[];
-}
-
-export default function Index() { // const { mutate } = useSWRConfig();
+export default function Index() {
   const { data } = useSWR<IDrinkItem[]>(`/api/drinks`, fetcher);
   let lineData: ILineBarData = { labels: [], datasets: [] };
   if (data) {
@@ -92,9 +75,7 @@ export default function Index() { // const { mutate } = useSWRConfig();
   return (
     <Container>
       <h3>Chart</h3>
-      <div>
-        <Line options={options} data={lineData} />
-      </div>
+      <SimpleChartPage title="カフェインチャート" data={lineData} />
     </Container>
   );
 }
