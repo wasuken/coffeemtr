@@ -28,15 +28,17 @@ export default function Index() {
   let lineData: ILineBarData = { labels: [], datasets: [] };
   if (data) {
     let map = new Map<string, IDrinkTotalItem>();
+    console.log('debug', data)
     data.forEach((drink) => {
       const key: string = genkey(drink.createdAt);
-      let newDrink = drink;
+      let newDrink: IDrinkTotalItem = {num: 1, ...drink};
       let oldDrink: IDrinkTotalItem | undefined = map.get(key);
       if (oldDrink === undefined) {
-        map.set(key, { num: 1, ...drink });
+        map.set(key, newDrink);
       } else {
         newDrink.caffeine_contents_mg += oldDrink.caffeine_contents_mg;
-        map.set(key, { num: oldDrink.num + 1, ...drink });
+        newDrink.num += 1;
+        map.set(key, newDrink);
       }
     });
     const keys = Array.from(map.keys());
