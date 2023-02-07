@@ -37,7 +37,7 @@ export default function Index() {
         map.set(key, newDrink);
       } else {
         newDrink.caffeine_contents_mg += oldDrink.caffeine_contents_mg;
-        newDrink.num += 1;
+        newDrink.num += oldDrink.num;
         map.set(key, newDrink);
       }
     });
