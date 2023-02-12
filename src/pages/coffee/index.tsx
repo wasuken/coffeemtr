@@ -1,6 +1,3 @@
-import Head from "next/head";
-import Image from "next/image";
-import { Inter } from "@next/font/google";
 import useSWR, { useSWRConfig } from "swr";
 import CoffeeList from "@/components/coffee/CoffeeList";
 import CaffeineMeter from "@/components/coffee/CaffeineMeter";
@@ -14,10 +11,9 @@ const ButtonArea = styled.div`
   gap: 5px;
 `
 
-const inter = Inter({ subsets: ["latin"] });
 const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
-function dfFromDt(dt) {
+function dfFromDt(dt: Date) {
   return [dt.getFullYear(), dt.getMonth() + 1, dt.getDate()].join("-");
 }
 
