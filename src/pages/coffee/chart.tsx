@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import useSWR from "swr";
@@ -24,14 +24,25 @@ function genkey(ds: string): string {
 
 export default function Index() {
   const [chartType, setChartType] = useState<number>(0);
-  const { data } = useSWR<IDrinkItem[]>(`/api/drinks`, fetcher);
-  let lineData: ILineBarData = { labels: [], datasets: [] };
-  if (data) {
-    let map = new Map<string, IDrinkTotalItem>();
-    console.log('debug', data)
-    data.forEach((drink) => {
+  const [drinkData, setDrinkData] = useState<
+    Map<string, IDrinkTotalItem> | undefined
+  >(undefined);
+  const [ymonth, setYMonth] = useState<string>("");
+  const [ymList, setYmList] = useState<string[]>([]);
+  const [lineChartData, setLineChartData] = useState<ILineBarData | undefined>(
+    undefined
+  );
+  const drinkFetcher = async (url: string) => {
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!data) return false;
+    const map = new Map<string, IDrinkTotalItem>();
+    const ym_set = new Set<string>();
+    data.forEach((drink: IDrinkItem) => {
       const key: string = genkey(drink.createdAt);
-      let newDrink: IDrinkTotalItem = {num: 1, ...drink};
+      const [yr, ms, _] = key.split("-");
+      ym_set.add([yr, ms].join("-"));
+      let newDrink: IDrinkTotalItem = { num: 1, ...drink };
       let oldDrink: IDrinkTotalItem | undefined = map.get(key);
       if (oldDrink === undefined) {
         map.set(key, newDrink);
@@ -41,12 +52,26 @@ export default function Index() {
         map.set(key, newDrink);
       }
     });
-    const keys = Array.from(map.keys());
+    const ymlist = Array.from(ym_set);
+    setYmList(ymlist);
+    setDrinkData(map);
+  };
+  function handleYMonthSelect(e: React.ChangeEvent<HTMLSelectElement>) {
+    const ym = e.target.value;
+    setYMonth(ym);
+    ChangeYMonthSelect(ym);
+  }
+  function ChangeYMonthSelect(ym: string) {
+    if (drinkData === undefined) return;
+    const keys = Array.from(drinkData.keys()).filter((dk: string) =>
+      dk.startsWith(ym)
+    );
+    let lineData: ILineBarData = { labels: [], datasets: [] };
     lineData.labels = keys;
     const chartData = keys.map((k) => {
       return chartType === 0
-        ? map.get(k)?.caffeine_contents_mg
-        : map.get(k)?.num;
+        ? drinkData.get(k)?.caffeine_contents_mg
+        : drinkData.get(k)?.num;
     });
     lineData.datasets = [
       {
@@ -56,11 +81,25 @@ export default function Index() {
         backgroundColor: "rgba(255, 99, 132, 0.5)",
       },
     ];
+    setLineChartData(lineData);
   }
+  useEffect(() => {
+    drinkFetcher('/api/drinks');
+  }, [])
   return (
     <Container>
       <h3>Chart</h3>
       <FormArea>
+        <Form.Group className="mb-3 w-50">
+          <Form.Label>月</Form.Label>
+          <Form.Select onChange={handleYMonthSelect} value={ymonth}>
+            {[...Array.from(ymList)].map((x, i) => (
+              <option value={x} key={i}>
+                {x}
+              </option>
+            ))}
+          </Form.Select>
+        </Form.Group>
         <Form.Group className="mb-3 w-50">
           <Form.Label>チャートの値</Form.Label>
           <Form.Select
@@ -73,7 +112,9 @@ export default function Index() {
         </Form.Group>
       </FormArea>
       <ChartArea>
-        <SimpleChartPage title="カフェインチャート" data={lineData} />
+        {lineChartData !== undefined && (
+          <SimpleChartPage title="カフェインチャート" data={lineChartData} />
+        )}
       </ChartArea>
     </Container>
   );
