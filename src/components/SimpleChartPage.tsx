@@ -25,6 +25,12 @@ ChartJS.register(
 function generateOpt(title: string){
   return {
     responsive: true,
+    scales: {
+      y: {
+        max: 1000,
+        min: 0,
+      }
+    },
     plugins: {
       legend: {
         position: "top" as const,
