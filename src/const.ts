@@ -28,4 +28,6 @@ export interface ILineBarData {
 export interface ISimpleChartPageProps {
   title: string;
   data: ILineBarData;
+  max: number;
+  min: number;
 }

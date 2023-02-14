@@ -24,6 +24,8 @@ function genkey(ds: string): string {
 
 export default function Index() {
   const [chartType, setChartType] = useState<number>(0);
+  const [yMin, setYMin] = useState<number>(0);
+  const [yMax, setYMax] = useState<number>(1000);
   const [drinkData, setDrinkData] = useState<
     Map<string, IDrinkTotalItem> | undefined
   >(undefined);
@@ -59,9 +61,9 @@ export default function Index() {
   function handleYMonthSelect(e: React.ChangeEvent<HTMLSelectElement>) {
     const ym = e.target.value;
     setYMonth(ym);
-    ChangeYMonthSelect(ym);
+    generateChartData(ym, chartType);
   }
-  function ChangeYMonthSelect(ym: string) {
+  function generateChartData(ym: string, cType: number) {
     if (drinkData === undefined) return;
     const keys = Array.from(drinkData.keys()).filter((dk: string) =>
       dk.startsWith(ym)
@@ -69,7 +71,7 @@ export default function Index() {
     let lineData: ILineBarData = { labels: [], datasets: [] };
     lineData.labels = keys;
     const chartData = keys.map((k) => {
-      return chartType === 0
+      return cType === 0
         ? drinkData.get(k)?.caffeine_contents_mg
         : drinkData.get(k)?.num;
     });
@@ -83,9 +85,21 @@ export default function Index() {
     ];
     setLineChartData(lineData);
   }
+  function handleCharType(e: React.ChangeEvent<HTMLSelectElement>) {
+    const v = parseInt(e.target.value);
+    setChartType(v);
+    if(v === 0){
+      setYMin(0);
+      setYMax(1000);
+    }else{
+      setYMin(0);
+      setYMax(10);
+    }
+    generateChartData(ymonth, v);
+  }
   useEffect(() => {
-    drinkFetcher('/api/drinks');
-  }, [])
+    drinkFetcher("/api/drinks");
+  }, []);
   return (
     <Container>
       <h3>Chart</h3>
@@ -102,10 +116,7 @@ export default function Index() {
         </Form.Group>
         <Form.Group className="mb-3 w-50">
           <Form.Label>チャートの値</Form.Label>
-          <Form.Select
-            onChange={(e) => setChartType(parseInt(e.target.value))}
-            value={chartType}
-          >
+          <Form.Select onChange={handleCharType} value={chartType}>
             <option value={0}>カフェイン量(mg)</option>
             <option value={1}>コーヒーのんだ回数</option>
           </Form.Select>
@@ -113,7 +124,12 @@ export default function Index() {
       </FormArea>
       <ChartArea>
         {lineChartData !== undefined && (
-          <SimpleChartPage title="カフェインチャート" data={lineChartData} />
+          <SimpleChartPage
+            title="カフェインチャート"
+            data={lineChartData}
+            min={yMin}
+            max={yMax}
+          />
         )}
       </ChartArea>
     </Container>

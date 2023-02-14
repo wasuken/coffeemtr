@@ -22,13 +22,13 @@ ChartJS.register(
 );
 
 
-function generateOpt(title: string){
+function generateOpt(title: string, max: number, min: number){
   return {
     responsive: true,
     scales: {
       y: {
-        max: 1000,
-        min: 0,
+        max,
+        min,
       }
     },
     plugins: {
@@ -46,6 +46,6 @@ function generateOpt(title: string){
 
 export default function SimpleChartPage(props: ISimpleChartPageProps){
   return (
-    <Line options={generateOpt(props.title)} data={props.data} />
+    <Line options={generateOpt(props.title, props.max, props.min)} data={props.data} />
   )
 }
