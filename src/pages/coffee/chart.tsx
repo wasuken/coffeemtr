@@ -17,6 +17,19 @@ const ChartArea = styled.div`
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
+function listMonthDays(ym: string) {
+  const st = new Date(ym + "-01");
+  let cur = new Date(st.getFullYear(), st.getMonth(), 1);
+  const lastDay = new Date(st.getFullYear(), st.getMonth() + 1, 0);
+  let rst = [];
+  while (cur < lastDay) {
+    const v = [cur.getFullYear(), cur.getMonth() + 1, cur.getDate()].join("-");
+    rst.push(v);
+    cur.setDate(cur.getDate() + 1);
+  }
+  return rst;
+}
+
 function genkey(ds: string): string {
   const dt = new Date(ds);
   return [dt.getFullYear(), dt.getMonth() + 1, dt.getDate()].join("-");
@@ -65,9 +78,26 @@ export default function Index() {
   }
   function generateChartData(ym: string, cType: number) {
     if (drinkData === undefined) return;
-    const keys = Array.from(drinkData.keys()).filter((dk: string) =>
+    console.log(ym);
+    listMonthDays(ym).forEach((ymd) => {
+    console.log(ymd);
+      if (!drinkData.has(ymd)) {
+        const eDrink: IDrinkTotalItem = {
+          id: 0,
+          num: 0,
+          createdAt: "",
+          caffeine_contents_mg: 0,
+        };
+        drinkData.set(ymd, eDrink);
+      }
+    });
+    console.log(drinkData);
+    let keys = Array.from(drinkData.keys()).filter((dk: string) =>
       dk.startsWith(ym)
     );
+    // 効率ゴミだけどサンプル数たいしたことないのでヨシ!
+    keys.sort((a, b) => (new Date(a)) > (new Date(b)));
+
     let lineData: ILineBarData = { labels: [], datasets: [] };
     lineData.labels = keys;
     const chartData = keys.map((k) => {
@@ -88,10 +118,10 @@ export default function Index() {
   function handleCharType(e: React.ChangeEvent<HTMLSelectElement>) {
     const v = parseInt(e.target.value);
     setChartType(v);
-    if(v === 0){
+    if (v === 0) {
       setYMin(0);
       setYMax(1000);
-    }else{
+    } else {
       setYMin(0);
       setYMax(10);
     }
