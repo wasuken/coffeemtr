@@ -9,28 +9,34 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method === "POST") {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    const da = now.toISOString().slice(0, -1);
     const defaultParam = {
       mg: COFFEE_CAFFEINE,
+      drink_at: da,
     };
-    const { mg } = { ...defaultParam, ...req.body };
+    const { mg, drink_at } = { ...defaultParam, ...req.body };
+    const createdAt = new Date(drink_at);
     await prisma.drinkCoffeeHistory.create({
       data: {
         caffeine_contents_mg: mg,
+        createdAt,
       },
     });
     res.status(200).json({ msg: "success" });
   } else if (req.method === "GET") {
     const dt = new Date();
     const df = [dt.getFullYear(), dt.getMonth() + 1, dt.getDate()].join("-");
-    const dfb = `${df} 00:00:00`
-    const dfe = `${df} 23:59:59`
+    const dfb = `${df} 00:00:00`;
+    const dfe = `${df} 23:59:59`;
     const drinkHistory = await prisma.drinkCoffeeHistory.findMany({
       where: {
         createdAt: {
           gte: new Date(dfb),
           lte: new Date(dfe),
-        }
-      }
+        },
+      },
     });
     res.status(200).json(drinkHistory);
   } else if (req.method === "DELETE") {
