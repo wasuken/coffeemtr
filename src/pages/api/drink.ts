@@ -45,18 +45,7 @@ export default async function handler(
     };
     const { date } = { ...req.params, ...defaultParam };
     const latestDrinkInDate = await prisma.drinkCoffeeHistory.findFirst({
-      where: {
-        AND: [
-          {
-            createdAt: {
-              gte: date,
-            },
-            createdAt: {
-              lte: date,
-            },
-          },
-        ],
-      },
+      where: {},
       orderBy: {
         createdAt: "desc",
       },
