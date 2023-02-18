@@ -5,6 +5,10 @@ import useSWR from "swr";
 import { IDrinkItem, ILineBarData, IDrinkTotalItem } from "@/const";
 import SimpleChartPage from "@/components/SimpleChartPage";
 import styled from "styled-components";
+interface IDrinkFetcher {
+  drinkData: Map<string, IDrinkTotalItem>;
+  ymList: string[];
+}
 
 const FormArea = styled.div`
   width: 80vw;
@@ -14,8 +18,6 @@ const ChartArea = styled.div`
   width: 80vw;
   height: 50vh;
 `;
-
-const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
 function listMonthDays(ym: string) {
   const st = new Date(ym + "-01");
@@ -48,16 +50,20 @@ export default function Index() {
   const [yMin, setYMin] = useState<number>(0);
   const [yMax, setYMax] = useState<number>(1000);
   const [ymonth, setYMonth] = useState<string>(genNewYM());
-  const [ymList, setYmList] = useState<string[]>([]);
   const [lineChartData, setLineChartData] = useState<ILineBarData | undefined>(
     undefined
   );
   const drinkFetcher = async (url: string) => {
     const res = await fetch(url);
     const data = await res.json();
-    if (!data) return false;
     const map = new Map<string, IDrinkTotalItem>();
     const ym_set = new Set<string>();
+    if (!data) {
+      return {
+        drinkData: map,
+        ymList: [],
+      };
+    }
     data.forEach((drink: IDrinkItem) => {
       const key: string = genkey(drink.createdAt);
       const [yr, ms, _] = key.split("-");
@@ -72,13 +78,29 @@ export default function Index() {
         map.set(key, newDrink);
       }
     });
-    const ymlist = Array.from(ym_set);
-    setYmList(ymlist);
-    if (ymlist.length > 0) generateChartData(ymlist[0], 0);
-    console.log(ymlist)
-    return map;
+    const ymList = Array.from(ym_set);
+    const df: IDrinkFetcher = {
+      drinkData: map,
+      ymList,
+    };
+    return df;
   };
-  const { data: drinkData } = useSWR("/api/drinks", drinkFetcher);
+  const drinkChartFetcher = async (url: string) => {
+    const { drinkData: map, ymList }: IDrinkFetcher = await drinkFetcher(url);
+    if (ymList.length > 0) generateChartData(ymList[0], 0);
+    return {
+      drinkData: map,
+      ymList,
+    };
+  };
+  let drinkData = new Map<string, IDrinkTotalItem>();
+  let ymList: string[] = [];
+  const { data } = useSWR("/api/drinks", drinkChartFetcher);
+  if (data) {
+    const { drinkData: dd, ymList: yl } = data;
+    drinkData = dd;
+    ymList = yl;
+  }
   function handleYMonthSelect(e: React.ChangeEvent<HTMLSelectElement>) {
     const ym = e.target.value;
     setYMonth(ym);
@@ -97,11 +119,17 @@ export default function Index() {
         drinkData.set(ymd, eDrink);
       }
     });
-    let keys = Array.from(drinkData.keys()).filter((dk: string) =>
+    let keys: string[] = Array.from(drinkData.keys()).filter((dk: string) =>
       dk.startsWith(ym)
     );
     // 効率ゴミだけどサンプル数たいしたことないのでヨシ!
-    keys.sort((a, b) => new Date(a) > new Date(b));
+    keys.sort((a, b) => {
+      if((new Date(a)) > (new Date(b))){
+        return 1;
+      }else{
+        return -1;
+      }
+    });
 
     let lineData: ILineBarData = { labels: [], datasets: [] };
     lineData.labels = keys;
