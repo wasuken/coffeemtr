@@ -34,15 +34,20 @@ function genkey(ds: string): string {
   const dt = new Date(ds);
   return [dt.getFullYear(), dt.getMonth() + 1, dt.getDate()].join("-");
 }
+function genNewKey(): string {
+  const dt = new Date();
+  return [dt.getFullYear(), dt.getMonth() + 1, dt.getDate()].join("-");
+}
+function genNewYM(): string {
+  const dt = new Date();
+  return [dt.getFullYear(), dt.getMonth() + 1].join("-");
+}
 
 export default function Index() {
   const [chartType, setChartType] = useState<number>(0);
   const [yMin, setYMin] = useState<number>(0);
   const [yMax, setYMax] = useState<number>(1000);
-  const [drinkData, setDrinkData] = useState<
-    Map<string, IDrinkTotalItem> | undefined
-  >(undefined);
-  const [ymonth, setYMonth] = useState<string>("");
+  const [ymonth, setYMonth] = useState<string>(genNewYM());
   const [ymList, setYmList] = useState<string[]>([]);
   const [lineChartData, setLineChartData] = useState<ILineBarData | undefined>(
     undefined
@@ -69,18 +74,19 @@ export default function Index() {
     });
     const ymlist = Array.from(ym_set);
     setYmList(ymlist);
-    setDrinkData(map);
+    if (ymlist.length > 0) generateChartData(ymlist[0], 0);
+    console.log(ymlist)
+    return map;
   };
+  const { data: drinkData } = useSWR("/api/drinks", drinkFetcher);
   function handleYMonthSelect(e: React.ChangeEvent<HTMLSelectElement>) {
     const ym = e.target.value;
     setYMonth(ym);
     generateChartData(ym, chartType);
   }
   function generateChartData(ym: string, cType: number) {
-    if (drinkData === undefined) return;
-    console.log(ym);
+    if (!drinkData) return;
     listMonthDays(ym).forEach((ymd) => {
-    console.log(ymd);
       if (!drinkData.has(ymd)) {
         const eDrink: IDrinkTotalItem = {
           id: 0,
@@ -91,12 +97,11 @@ export default function Index() {
         drinkData.set(ymd, eDrink);
       }
     });
-    console.log(drinkData);
     let keys = Array.from(drinkData.keys()).filter((dk: string) =>
       dk.startsWith(ym)
     );
     // 効率ゴミだけどサンプル数たいしたことないのでヨシ!
-    keys.sort((a, b) => (new Date(a)) > (new Date(b)));
+    keys.sort((a, b) => new Date(a) > new Date(b));
 
     let lineData: ILineBarData = { labels: [], datasets: [] };
     lineData.labels = keys;
@@ -127,9 +132,6 @@ export default function Index() {
     }
     generateChartData(ymonth, v);
   }
-  useEffect(() => {
-    drinkFetcher("/api/drinks");
-  }, []);
   return (
     <Container>
       <h3>Chart</h3>
