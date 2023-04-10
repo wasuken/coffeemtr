@@ -2,7 +2,7 @@ import useSWR, { useSWRConfig } from "swr";
 import { useState } from "react";
 import CoffeeList from "@/components/coffee/CoffeeList";
 import CaffeineMeter from "@/components/coffee/CaffeineMeter";
-import { COFFEE_CAFFEINE, ONE_DAY_MAX_CAFFEINE_MG } from "@/const";
+import { COFFEE_CAFFEINE, ONE_DAY_MAX_CAFFEINE_MG, IDrinkItem } from "@/const";
 import { Button, Form, Container } from "react-bootstrap";
 import styled from "styled-components";
 
@@ -12,7 +12,13 @@ const ButtonArea = styled.div`
   gap: 5px;
 `;
 
-const fetcher = (...args) => fetch(...args).then((res) => res.json());
+type PostDrink = {
+  drink_at: string
+};
+
+type Fetcher<T> = (input: RequestInfo, init?: RequestInit) => Promise<T>;
+
+const fetcher: Fetcher<IDrinkItem[]> = (...args) => fetch(...args).then((res) => res.json());
 
 function dfFromDt(dt: Date) {
   return [dt.getFullYear(), dt.getMonth() + 1, dt.getDate()].join("-");
@@ -41,7 +47,9 @@ export default function Home() {
     nowmgLabel = `${nowmg} / ${ONE_DAY_MAX_CAFFEINE_MG} (mg)`;
   }
   function drinkClick() {
-    const body = {};
+    const body: PostDrink = {
+	  drink_at: ''
+	};
     if (drinkAt !== "") body.drink_at = drinkAt;
     fetch("/api/drink", {
       method: "POST",
@@ -100,7 +108,9 @@ export default function Home() {
       </ButtonArea>
       <div>
         <div>{data && <CaffeineMeter mg={nowmgper} label={nowmgLabel} />}</div>
-        <CoffeeList title="今日" dt={dt} data={data} error={error} />
+        {data !== undefined && (
+		  <CoffeeList title="今日" data={data} error={error} />
+		)}
       </div>
     </>
   );

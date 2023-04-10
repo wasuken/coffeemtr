@@ -3,37 +3,29 @@ import { PrismaClient, Prisma } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const defaultParams = {
-  begin: "1970-01-01",
-  end: "2100-12-31",
-};
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   if (req.method === "GET") {
     // 一覧の取得
-    let where = {};
-    if (req.params) {
-      where = {
-        where: {
-          createdAt: {
-            // gte: dtb,
-            // lte: dte,
-          },
-        },
-      };
-      const { begin, end } = { ...req.params, defaultParams };
-      const dtb = new Date(begin);
-      const dte = new Date(end);
-      if (req.params.begin) {
-        where.where.createdAt.gte = dtb;
-      }
-      if (req.params.end) {
-        where.where.createdAt.lte = dte;
+    let where: Prisma.DrinkCoffeeHistoryWhereInput = {};
+    if (req.query) {
+      const { begin, end } = req.query;
+
+      if (typeof begin === "string" || typeof end === "string") {
+        where.createdAt = {};
+        if (typeof begin === "string") {
+          where.createdAt.gte = new Date(begin);
+        }
+        if (typeof end === "string") {
+          where.createdAt.lte = new Date(end);
+        }
       }
     }
-    const drinkHistory = await prisma.drinkCoffeeHistory.findMany(where);
+    const drinkHistory = await prisma.drinkCoffeeHistory.findMany({
+	  where
+	});
     res.status(200).json(drinkHistory);
   }
   return;

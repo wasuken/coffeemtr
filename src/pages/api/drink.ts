@@ -12,11 +12,9 @@ export default async function handler(
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     const da = now.toISOString().slice(0, -1);
-    const defaultParam = {
-      mg: COFFEE_CAFFEINE,
-      drink_at: da,
-    };
-    const { mg, drink_at } = { ...defaultParam, ...req.body };
+    let { mg, drink_at } = req.body;
+    if (!mg) mg = COFFEE_CAFFEINE;
+    if (!drink_at) drink_at = da;
     const createdAt = new Date(drink_at);
     await prisma.drinkCoffeeHistory.create({
       data: {
@@ -40,10 +38,13 @@ export default async function handler(
     });
     res.status(200).json(drinkHistory);
   } else if (req.method === "DELETE") {
-    const defaultParam = {
-      date: new Date(),
-    };
-    const { date } = { ...req.params, ...defaultParam };
+    const { datestr } = req.query;
+    if (typeof datestr !== "string") {
+      res.status(400);
+      return;
+    }
+    let date = new Date(datestr);
+    if (!date) date = new Date();
     const latestDrinkInDate = await prisma.drinkCoffeeHistory.findFirst({
       where: {},
       orderBy: {

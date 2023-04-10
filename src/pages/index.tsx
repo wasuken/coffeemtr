@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import Container from "react-bootstrap/Container";
+import Link from 'next/link'
 
 export default function Index() {
   return (
@@ -7,10 +8,10 @@ export default function Index() {
       <h3>Index</h3>
       <div>
         <div>
-          <a href="/coffee">Drink Coffee Manage</a>
+          <Link href="/coffee">Drink Coffee Manage</Link>
         </div>
         <div>
-          <a href="/coffee/chart">Drink Coffee Chart</a>
+          <Link href="/coffee/chart">Drink Coffee Chart</Link>
         </div>
       </div>
     </Container>
