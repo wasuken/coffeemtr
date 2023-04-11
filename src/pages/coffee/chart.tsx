@@ -16,10 +16,7 @@ const ChartArea = styled.div`
   height: 50vh;
 `;
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json()).then((j) => {
-  console.log("dededebug", j)
-  return j;
-});
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export default function Index() {
   const [yMonth, setYMonth] = useState<string>(genNewYM());

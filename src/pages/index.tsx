@@ -8,10 +8,13 @@ export default function Index() {
       <h3>Index</h3>
       <div>
         <div>
-          <Link href="/coffee">Drink Coffee Manage</Link>
+          <Link href="/coffee">Input</Link>
         </div>
         <div>
-          <Link href="/coffee/chart">Drink Coffee Chart</Link>
+          <Link href="/coffee/chart">Chart</Link>
+        </div>
+		<div>
+          <Link href="/coffee/calendar">Calendar</Link>
         </div>
       </div>
     </Container>

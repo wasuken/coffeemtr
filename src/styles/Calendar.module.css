@@ -1,0 +1,36 @@
+.coffee-calendar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 10px;
+}
+
+.calendar-header-container {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 10px;
+}
+
+.calendar-header,
+.calendar-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  width: 14.28%;
+}
+
+.calendar-header {
+  font-weight: bold;
+  color: #555;
+}
+
+.calendar-day {
+  font-size: 1.2em;
+}
+
+.calendar-count {
+  font-size: 0.8em;
+  margin-left: 5px;
+}

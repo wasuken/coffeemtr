@@ -49,3 +49,26 @@ export interface CoffeeListProps {
   data: IDrinkItem[];
   error: boolean;
 }
+
+export const genInputDate = function(ym: string | undefined | string[]) {
+  const dt = new Date();
+
+  if (typeof ym !== "string") {
+    const yms = [dt.getFullYear(), dt.getMonth() + 1].join("-");
+    const gte = new Date(yms + "-01");
+    const lte = new Date(gte.getFullYear(), gte.getMonth() + 1, 0);
+    return {
+      gte,
+      lte,
+      yms,
+    };
+  } else {
+    const gte = new Date(ym + "-01");
+    const lte = new Date(gte.getFullYear(), gte.getMonth() + 1, 0);
+    return {
+      gte,
+      lte,
+      yms: ym,
+    };
+  }
+}

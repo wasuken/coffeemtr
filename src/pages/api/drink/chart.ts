@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient, Prisma } from "@prisma/client";
-import { IDrinkItem, IDrinkTotalItem } from "@/const";
+import { IDrinkItem, IDrinkTotalItem, genInputDate } from "@/const";
 
 const prisma = new PrismaClient();
 
@@ -56,29 +56,6 @@ function generateChartData(ym: string, drinkHistory: []) {
     return drinkData.get(k)?.caffeine_contents_mg;
   });
   return { labels: keys, datasets: [{ label: "mg", data: chartData }] };
-}
-
-function genInputDate(ym: string | undefined | string[]) {
-  const dt = new Date();
-
-  if (typeof ym !== "string") {
-    const yms = [dt.getFullYear(), dt.getMonth() + 1].join("-");
-    const gte = new Date(yms + "-01");
-    const lte = new Date(gte.getFullYear(), gte.getMonth() + 1, 0);
-    return {
-      gte,
-      lte,
-      yms,
-    };
-  } else {
-    const gte = new Date(ym + "-01");
-    const lte = new Date(gte.getFullYear(), gte.getMonth() + 1, 0);
-    return {
-      gte,
-      lte,
-      yms: ym,
-    };
-  }
 }
 
 export default async function handler(
