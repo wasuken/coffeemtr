@@ -87,7 +87,7 @@ const CoffeeCalendar: React.FC<CoffeeCalendarProps> = ({ data, ym }) => {
     return (
       <CalendarCell key={date} level={count}>
         <CalendarDay>{day}</CalendarDay>
-        <CalendarCount>{count} mg</CalendarCount>
+        <CalendarCount>{count/80} 杯</CalendarCount>
       </CalendarCell>
     );
   });

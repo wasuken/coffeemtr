@@ -4,10 +4,11 @@ import Navbar from "react-bootstrap/Navbar";
 
 interface Props {
   children: React.ReactNode;
+  items: {text: string, href: string};
 }
 
 
-export default function Layout({ children }: Props) {
+export default function Layout({ children, items }: Props) {
   return (
     <Container>
       <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
@@ -16,8 +17,9 @@ export default function Layout({ children }: Props) {
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-nav">
             <Nav className="me-auto">
-              <Nav.Link href="/coffee">Input</Nav.Link>
-              <Nav.Link href="/coffee/chart">Chart</Nav.Link>
+			  {items.map((item, k) => (
+				<Nav.Link key={k} href={item.href}>{item.text}</Nav.Link>
+			  ))}
             </Nav>
           </Navbar.Collapse>
         </Container>
