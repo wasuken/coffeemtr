@@ -55,13 +55,14 @@ export const CalendarCount = styled.div`
 
 interface CoffeeCalendarProps {
   data: { ymd: string; value: number }[];
+  ym: string;
 }
 
-const CoffeeCalendar: React.FC<CoffeeCalendarProps> = ({ data }) => {
+const CoffeeCalendar: React.FC<CoffeeCalendarProps> = ({ data, ym }) => {
   // 全ての日付を持つ配列を生成
   const dates = [];
-  let startDate = dayjs().startOf("month");
-  const endDate = dayjs().endOf("month");
+  let startDate = dayjs(new Date(ym)).startOf("month");
+  const endDate = dayjs(new Date(ym)).endOf("month");
   while (startDate.isBefore(endDate)) {
     dates.push(startDate.format("YYYY-MM-DD"));
     startDate = startDate.add(1, "day");
@@ -70,7 +71,6 @@ const CoffeeCalendar: React.FC<CoffeeCalendarProps> = ({ data }) => {
   // 各日付のコーヒー飲用回数を集計
   const counts = {};
   for (const { createdAt, caffeine_contents_mg } of data) {
-    const dt = new Date(createdAt);
     const ymd = dayjs(new Date(createdAt)).format("YYYY-MM-DD");
     if (counts[ymd]) {
       counts[ymd] += caffeine_contents_mg;
@@ -78,6 +78,7 @@ const CoffeeCalendar: React.FC<CoffeeCalendarProps> = ({ data }) => {
       counts[ymd] = caffeine_contents_mg;
     }
   }
+  console.log(counts);
 
   // カレンダーの表示部分のJSX
   const calendarCells = dates.map((date) => {
