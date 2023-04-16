@@ -1,8 +1,9 @@
 import useSWR from "swr";
-import "react-datepicker/dist/react-datepicker.css"
+import "react-datepicker/dist/react-datepicker.css";
 import { useState } from "react";
 import CalendarPage from "@/components/CalendarPage";
 import { genNewYM } from "@/util";
+import AuthPage from "@/components/AuthPage";
 
 import DatePicker, { registerLocale } from "react-datepicker";
 import ja from "date-fns/locale/ja";
@@ -26,15 +27,15 @@ export default function Index() {
   if (isLoading) return <div>loading...</div>;
   // fetch data
   return (
-    <>
+    <AuthPage>
       <DatePicker
-		locale="ja"
-				selected={date}
-				onChange={(dt) => setDate(dt)}
-				dateFormat="yyyy/MM"
-				showMonthYearPicker
+        locale="ja"
+        selected={date}
+        onChange={(dt) => setDate(dt)}
+        dateFormat="yyyy/MM"
+        showMonthYearPicker
       />
       <CalendarPage data={data} ym={dayjs(date).format("YYYY-MM")} />
-    </>
+    </AuthPage>
   );
 }

@@ -5,6 +5,7 @@ import CaffeineMeter from "@/components/coffee/CaffeineMeter";
 import { COFFEE_CAFFEINE, ONE_DAY_MAX_CAFFEINE_MG, IDrinkItem } from "@/const";
 import { Button, Form, Container } from "react-bootstrap";
 import styled from "styled-components";
+import AuthPage from "@/components/AuthPage";
 
 const ButtonArea = styled.div`
   display: flex;
@@ -81,7 +82,7 @@ export default function Home() {
     console.log(dtf);
   }
   return (
-    <>
+    <AuthPage>
       <h2>History</h2>
       <div>Drink At</div>
       <Container className="mb-3 d-flex start">
@@ -112,6 +113,6 @@ export default function Home() {
 		  <CoffeeList title="今日" data={data} error={error} />
 		)}
       </div>
-    </>
+    </AuthPage>
   );
 }
