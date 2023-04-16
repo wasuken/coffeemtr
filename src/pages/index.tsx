@@ -1,22 +1,10 @@
-import styled from "styled-components";
 import Container from "react-bootstrap/Container";
-import Link from 'next/link'
+import AuthPage from "@/components/AuthPage";
 
 export default function Index() {
   return (
-    <Container>
-      <h3>Index</h3>
-      <div>
-        <div>
-          <Link href="/coffee">Input</Link>
-        </div>
-        <div>
-          <Link href="/coffee/chart">Chart</Link>
-        </div>
-		<div>
-          <Link href="/coffee/calendar">Calendar</Link>
-        </div>
-      </div>
-    </Container>
+    <AuthPage>
+      <Container>Index</Container>
+    </AuthPage>
   );
 }

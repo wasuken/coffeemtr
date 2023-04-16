@@ -3,6 +3,7 @@ import { Container } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import useSWR from "swr";
 import styled from "styled-components";
+import AuthPage from "@/components/AuthPage";
 
 import { genNewYM } from "@/util";
 import SimpleChartPage from "@/components/SimpleChartPage";
@@ -23,7 +24,7 @@ export default function Index() {
   const { data, error, isLoading } = useSWR(
     `/api/drink/chart?ym=${yMonth}`,
     fetcher,
-	{ key: `/api/drink/chart?ym=${yMonth}`},
+    { key: `/api/drink/chart?ym=${yMonth}` }
   );
   const {
     data: ymList,
@@ -38,32 +39,34 @@ export default function Index() {
   if (isLoading || isYMLoading) return <div>loading...</div>;
   if (error || ymError) return <div>error.</div>;
   return (
-    <Container>
-      <h3>Chart</h3>
-      {ymList && (
-        <FormArea>
-          <Form.Group className="mb-3 w-50">
-            <Form.Label>月</Form.Label>
-            <Form.Select onChange={handleYMonthSelect} value={yMonth}>
-              {ymList.map((x, i) => (
-                <option value={x} key={i}>
-                  {x}
-                </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
-        </FormArea>
-      )}
-      {data && (
-        <ChartArea>
-          <SimpleChartPage
-            title="カフェインチャート"
-            data={data}
-            min={0}
-            max={400}
-          />
-        </ChartArea>
-      )}
-    </Container>
+    <AuthPage>
+      <Container>
+        <h3>Chart</h3>
+        {ymList && (
+          <FormArea>
+            <Form.Group className="mb-3 w-50">
+              <Form.Label>月</Form.Label>
+              <Form.Select onChange={handleYMonthSelect} value={yMonth}>
+                {ymList.map((x, i) => (
+                  <option value={x} key={i}>
+                    {x}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+          </FormArea>
+        )}
+        {data && (
+          <ChartArea>
+            <SimpleChartPage
+              title="カフェインチャート"
+              data={data}
+              min={0}
+              max={400}
+            />
+          </ChartArea>
+        )}
+      </Container>
+    </AuthPage>
   );
 }
