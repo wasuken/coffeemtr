@@ -9,13 +9,15 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method === "POST") {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    const da = now.toISOString().slice(0, -1);
-    let { mg, drink_at } = req.body;
+    let { mg, drink_at: drankAt } = req.body;
     if (!mg) mg = COFFEE_CAFFEINE;
-    if (!drink_at) drink_at = da;
-    const createdAt = new Date(drink_at);
+    if (!drankAt) {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      drankAt = now.toISOString().slice(0, -1);
+    }
+    console.log(drankAt);
+    const createdAt = new Date(drankAt);
     await prisma.drinkCoffeeHistory.create({
       data: {
         caffeine_contents_mg: mg,
@@ -23,6 +25,7 @@ export default async function handler(
       },
     });
     res.status(200).json({ msg: "success" });
+    return;
   } else if (req.method === "GET") {
     const dt = new Date();
     const df = [dt.getFullYear(), dt.getMonth() + 1, dt.getDate()].join("-");
@@ -37,10 +40,11 @@ export default async function handler(
       },
     });
     res.status(200).json(drinkHistory);
+    return;
   } else if (req.method === "DELETE") {
-    const { datestr } = req.query;
+    const { date: datestr } = req.query;
     if (typeof datestr !== "string") {
-      res.status(400);
+      res.status(400).json({ msg: "not date string." });
       return;
     }
     let date = new Date(datestr);
@@ -51,7 +55,6 @@ export default async function handler(
         createdAt: "desc",
       },
     });
-    console.log("debug", latestDrinkInDate);
     if (latestDrinkInDate !== null) {
       // 削除対象があるので、削除処理を行う
       await prisma.drinkCoffeeHistory.delete({
@@ -59,10 +62,11 @@ export default async function handler(
           id: latestDrinkInDate.id,
         },
       });
-      console.log("debug", "deleted");
       res.status(200).json({ msg: "success" });
+      return;
     } else {
       res.status(200).json({ msg: "contents not found" });
+      return;
     }
   }
   return;
