@@ -27,7 +27,7 @@ export const CalendarHeader = styled.div`
   border: solid 1px black;
 `;
 
-export const CalendarCell = styled.div`
+export const CalendarCell = styled("div")<{level: number}>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -54,7 +54,7 @@ export const CalendarCount = styled.div`
 `;
 
 interface CoffeeCalendarProps {
-  data: { ymd: string; value: number }[];
+  data: { createdAt: string; caffeine_contents_mg: number }[];
   ym: string;
 }
 
@@ -69,7 +69,7 @@ const CoffeeCalendar: React.FC<CoffeeCalendarProps> = ({ data, ym }) => {
   }
 
   // 各日付のコーヒー飲用回数を集計
-  const counts = {};
+  const counts: { [key: string]: number } = {};
   for (const { createdAt, caffeine_contents_mg } of data) {
     const ymd = dayjs(new Date(createdAt)).format("YYYY-MM-DD");
     if (counts[ymd]) {
@@ -78,7 +78,6 @@ const CoffeeCalendar: React.FC<CoffeeCalendarProps> = ({ data, ym }) => {
       counts[ymd] = caffeine_contents_mg;
     }
   }
-  console.log(counts);
 
   // カレンダーの表示部分のJSX
   const calendarCells = dates.map((date) => {

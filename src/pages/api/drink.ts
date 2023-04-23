@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
 import { COFFEE_CAFFEINE } from "@/const";
+import { authUser } from "@/lib/lib";
 
 const prisma = new PrismaClient();
 
@@ -8,6 +9,11 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const user: User | null = await authUser(req.headers.authorization);
+  if (!user) {
+    res.status(401).json({ msg: "unauthorized." });
+    return;
+  }
   if (req.method === "POST") {
     let { mg, drink_at: drankAt } = req.body;
     if (!mg) mg = COFFEE_CAFFEINE;

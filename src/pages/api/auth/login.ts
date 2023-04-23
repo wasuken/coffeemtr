@@ -27,7 +27,11 @@ export default async function handler(
     return res.status(401).json({ message: "Invalid credentials" });
   }
 
-  const token = sign({ userId: user.id }, process.env.JWT_SECRET, {
+  const secret = process.env.JWT_SECRET;
+  if (typeof secret !== "string") {
+    return res.status(401).json({ message: "Invalid credentials" });
+  }
+  const token = sign({ userId: user.id }, secret, {
     expiresIn: "1h",
   });
 

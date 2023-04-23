@@ -1,6 +1,6 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { AuthContext, useAuthContext } from "@/contexts/auth";
+import { useAuthContext } from "@/contexts/auth";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -95,7 +95,7 @@ export default function LoginPage() {
       }
     };
     checkLogin();
-  }, [authState.isLoggedIn]);
+  }, [authState.isLoggedIn, router]);
 
   if (loading) {
     return <div>Loading...</div>;

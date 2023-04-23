@@ -16,7 +16,11 @@ export const AuthContext = createContext<AuthContextType>([
   () => {},
 ]);
 
-export const AuthProvider: React.FC = ({ children }) => {
+interface Props {
+  children: React.ReactNode;
+}
+
+export const AuthProvider: React.FC<Props> = ({ children }: Props) => {
   const [authState, setAuthState] = useState<AuthState>(() => {
     const storedState = Cookies.get("authState");
     return storedState ? JSON.parse(storedState) : { token: null, isLoggedIn: false };

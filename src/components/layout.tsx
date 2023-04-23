@@ -4,7 +4,7 @@ import Navbar from "react-bootstrap/Navbar";
 
 interface Props {
   children: React.ReactNode;
-  items: {text: string, href: string};
+  items: {text: string, href: string}[];
 }
 
 

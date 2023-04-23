@@ -1,4 +1,5 @@
 import { CoffeeListProps, IDrinkItem } from "@/const";
+import Image from "next/image";
 
 function dfFromDt(dt: Date) {
   return [dt.getFullYear(), dt.getMonth() + 1, dt.getDate()].join("-");
@@ -24,7 +25,7 @@ export default function CoffeeList(props: CoffeeListProps) {
         {dmap.get(dfFromDt(new Date())) &&
           dmap
             .get(dfFromDt(new Date()))
-            ?.map((_hist, i) => <img key={i} src="/coffee.png" alt="" />)}
+            ?.map((_hist, i) => <Image key={i} src="/coffee.png" alt="" />)}
       </div>
     </div>
   );
