@@ -14,6 +14,7 @@ export default async function handler(
     res.status(401).json({ msg: "unauthorized." });
     return;
   }
+  const userId = user.id;
   if (req.method === "POST") {
     let { mg, drink_at: drankAt } = req.body;
     if (!mg) mg = COFFEE_CAFFEINE;
@@ -22,12 +23,12 @@ export default async function handler(
       now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
       drankAt = now.toISOString().slice(0, -1);
     }
-    console.log(drankAt);
     const createdAt = new Date(drankAt);
     await prisma.drinkCoffeeHistory.create({
       data: {
         caffeine_contents_mg: mg,
         createdAt,
+        userId,
       },
     });
     res.status(200).json({ msg: "success" });
@@ -43,6 +44,7 @@ export default async function handler(
           gte: new Date(dfb),
           lte: new Date(dfe),
         },
+        userId,
       },
     });
     res.status(200).json(drinkHistory);
@@ -56,7 +58,9 @@ export default async function handler(
     let date = new Date(datestr);
     if (!date) date = new Date();
     const latestDrinkInDate = await prisma.drinkCoffeeHistory.findFirst({
-      where: {},
+      where: {
+        userId,
+      },
       orderBy: {
         createdAt: "desc",
       },

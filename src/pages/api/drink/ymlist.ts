@@ -13,6 +13,7 @@ export default async function handler(
     res.status(401).json({ msg: "unauthorized." });
     return;
   }
+  const userId = user.id;
   if (req.method === "GET") {
     const dateList = await prisma.drinkCoffeeHistory.findMany({
       select: {
@@ -22,7 +23,7 @@ export default async function handler(
         createdAt: "asc",
       },
       where: {
-        id: user.id,
+        userId,
       },
     });
     if (!dateList) {

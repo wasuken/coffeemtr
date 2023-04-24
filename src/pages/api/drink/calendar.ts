@@ -14,6 +14,7 @@ export default async function handler(
     res.status(401).json({ msg: "unauthorized." });
     return;
   }
+  const userId = user.id;
   if (req.method === "GET") {
     let year_month = req.query.ym;
     const { gte, lte, yms } = genInputDate(year_month);
@@ -24,6 +25,7 @@ export default async function handler(
           gte,
           lte,
         },
+        userId,
       },
     });
     res.status(200).json(histList);
