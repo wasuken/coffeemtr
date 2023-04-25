@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { compare, hash } from "bcryptjs";
+import { compare } from "bcryptjs";
 import { sign } from "jsonwebtoken";
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -10,9 +10,8 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method Not Allowed" });
+    return res.status(401).json({ message: "unauthorized." });
   }
-
   const { email, password } = req.body;
 
   const user = await prisma.user.findUnique({ where: { email } });
@@ -27,9 +26,14 @@ export default async function handler(
     return res.status(401).json({ message: "Invalid credentials" });
   }
 
-  const token = sign({ userId: user.id }, process.env.JWT_SECRET, {
+  const secret = process.env.JWT_SECRET;
+  if (typeof secret !== "string") {
+    return res.status(401).json({ message: "Invalid credentials" });
+  }
+  const token = sign({ userId: user.id }, secret, {
     expiresIn: "1h",
   });
 
   res.status(200).json({ token });
+  return;
 }

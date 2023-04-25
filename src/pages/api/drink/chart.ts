@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { PrismaClient, Prisma } from "@prisma/client";
-import { IDrinkItem, IDrinkTotalItem, genInputDate } from "@/const";
+import { PrismaClient, User, DrinkCoffeeHistory } from "@prisma/client";
+import { authUser } from "@/lib/lib";
+import { IDrinkTotalItem, genInputDate } from "@/const";
 
 const prisma = new PrismaClient();
 
@@ -17,7 +18,7 @@ function listMonthDays(ym: string) {
   return rst;
 }
 
-function generateChartData(ym: string, drinkHistory: []) {
+function generateChartData(ym: string, drinkHistory: DrinkCoffeeHistory[]) {
   let drinkData = new Map<string, IDrinkTotalItem>();
   // mapを初期化
   listMonthDays(ym).forEach((ymd) => {
@@ -37,10 +38,12 @@ function generateChartData(ym: string, drinkHistory: []) {
     const dt = drink.createdAt;
     const yymd = [dt.getFullYear(), dt.getMonth() + 1, dt.getDate()].join("-");
     if (drinkData.has(yymd)) {
-      let newDrink: IDrinkTotalItem = drinkData.get(yymd);
-      newDrink.num += 1;
-      newDrink.caffeine_contents_mg += drink.caffeine_contents_mg;
-      newDrink.children.push(drink);
+      let newDrink: IDrinkTotalItem | undefined = drinkData.get(yymd);
+      if (newDrink !== undefined) {
+        newDrink.num += 1;
+        newDrink.caffeine_contents_mg += drink.caffeine_contents_mg;
+        newDrink.children.push({ ...drink, createdAt: yymd });
+      }
     }
   });
   // 効率ゴミだけどサンプル数たいしたことないのでヨシ!
@@ -62,6 +65,12 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const user: User | null = await authUser(req.headers.authorization);
+  if (!user) {
+    res.status(401).json({ msg: "unauthorized." });
+    return;
+  }
+  const userId = user.id;
   if (req.method === "GET") {
     let year_month = req.query.ym;
     const { gte, lte, yms } = genInputDate(year_month);
@@ -72,6 +81,7 @@ export default async function handler(
           gte,
           lte,
         },
+        userId,
       },
     });
     const data = generateChartData(year_month, histList);

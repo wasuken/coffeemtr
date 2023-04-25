@@ -22,7 +22,7 @@ export interface IDrinkTotalItem extends IDrinkItem {
 
 export interface ILineBarDataDataset {
   label: string;
-  data: (number|undefined)[];
+  data: (number | undefined)[];
   borderColor: string;
   backgroundColor: string;
 }
@@ -50,7 +50,7 @@ export interface CoffeeListProps {
   error: boolean;
 }
 
-export const genInputDate = function(ym: string | undefined | string[]) {
+export const genInputDate = function (ym: string | undefined | string[]) {
   const dt = new Date();
 
   if (typeof ym !== "string") {
@@ -71,4 +71,19 @@ export const genInputDate = function(ym: string | undefined | string[]) {
       yms: ym,
     };
   }
-}
+};
+
+export const HEADER_ITEMS = [
+  {
+    text: "Input",
+    href: "/coffee",
+  },
+  {
+    text: "Chart",
+    href: "/coffee/chart",
+  },
+  {
+    text: "Calendar",
+    href: "/coffee/calendar",
+  },
+];
