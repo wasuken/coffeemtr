@@ -25,7 +25,9 @@ export default function CoffeeList(props: CoffeeListProps) {
         {dmap.get(dfFromDt(new Date())) &&
           dmap
             .get(dfFromDt(new Date()))
-            ?.map((_hist, i) => <Image key={i} src="/coffee.png" alt="" />)}
+            ?.map((_hist, i) => (
+              <Image key={i} src="/coffee.png" width="36" height="36" alt="" />
+            ))}
       </div>
     </div>
   );

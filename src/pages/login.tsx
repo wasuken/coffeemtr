@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/contexts/auth";
 import styled from "styled-components";
+import { HEADER_ITEMS } from "@/const";
+import Layout from "@/components/layout";
 
 const Container = styled.div`
   display: flex;
@@ -102,24 +104,26 @@ export default function LoginPage() {
   }
 
   return (
-    <Container>
-      <Form onSubmit={handleFormSubmit}>
-        <Label>Email</Label>
-        <Input
-          type="email"
-          name="email"
-          value={formState.email}
-          onChange={handleInputChange}
-        />
-        <Label>Password</Label>
-        <Input
-          type="password"
-          name="password"
-          value={formState.password}
-          onChange={handleInputChange}
-        />
-        <Button type="submit">Login</Button>
-      </Form>
-    </Container>
+    <Layout items={HEADER_ITEMS}>
+      <Container>
+        <Form onSubmit={handleFormSubmit}>
+          <Label>Email</Label>
+          <Input
+            type="email"
+            name="email"
+            value={formState.email}
+            onChange={handleInputChange}
+          />
+          <Label>Password</Label>
+          <Input
+            type="password"
+            name="password"
+            value={formState.password}
+            onChange={handleInputChange}
+          />
+          <Button type="submit">Login</Button>
+        </Form>
+      </Container>
+    </Layout>
   );
 }

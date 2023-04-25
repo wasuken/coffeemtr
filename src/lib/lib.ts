@@ -16,15 +16,15 @@ export async function authUser(
   try {
     // トークンを検証
     const decoded: string | JwtPayload = verify(token, secret);
-    let dtoken = "";
+    let userId = "";
     if (typeof decoded === "string") {
-      dtoken = decoded;
+      userId = decoded;
     } else {
-      dtoken = decoded.token;
+      userId = decoded.userId;
     }
     const user = await prisma.user.findFirst({
       where: {
-        token: dtoken,
+        id: parseInt(userId),
       },
     });
 
