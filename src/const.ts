@@ -56,7 +56,7 @@ export const genInputDate = function (ym: string | undefined | string[]) {
   if (typeof ym !== "string") {
     const yms = [dt.getFullYear(), dt.getMonth() + 1].join("-");
     const gte = new Date(yms + "-01");
-    const lte = new Date(gte.getFullYear(), gte.getMonth() + 1, 0);
+    const lte = new Date(gte.getFullYear(), gte.getMonth() + 1, 1);
     return {
       gte,
       lte,
@@ -64,7 +64,7 @@ export const genInputDate = function (ym: string | undefined | string[]) {
     };
   } else {
     const gte = new Date(ym + "-01");
-    const lte = new Date(gte.getFullYear(), gte.getMonth() + 1, 0);
+    const lte = new Date(gte.getFullYear(), gte.getMonth() + 1, 1);
     return {
       gte,
       lte,

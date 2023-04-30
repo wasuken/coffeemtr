@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 function listMonthDays(ym: string) {
   const st = new Date(ym + "-01");
   let cur = new Date(st.getFullYear(), st.getMonth(), 1);
-  const lastDay = new Date(st.getFullYear(), st.getMonth() + 1, 0);
+  const lastDay = new Date(st.getFullYear(), st.getMonth() + 1, 1);
   let rst = [];
   while (cur < lastDay) {
     const v = [cur.getFullYear(), cur.getMonth() + 1, cur.getDate()].join("-");
